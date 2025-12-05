@@ -1,0 +1,372 @@
+cursor create --name "home-first-elderly-care" --template "react-typescript-vite" --prompt "You are a professional senior software developer. Design and generate a production-ready React (TypeScript + Vite) project for a Home-First Elderly Care Platform (two-sided marketplace for verified caregivers, short-term care, device vendors, subscriptions, telehealth). Follow modern best practices, clean architecture, and a function-call/service-based approach. Produce skeleton code, folder structure, key components, services, types, routing, sample pages, sample tests, linting & build configs, and README. Prioritize testability, separation of concerns, reusability, accessibility, and security best practices.
+
+--- Requirements & scope (MVP, 6–12 weeks)
+
+User roles: family/customer, caregiver/vendor, admin.
+
+Core flows:
+
+Caregiver / Vendor onboarding with verification steps (upload documents, background-check status).
+
+Customer: browse caregivers & devices, schedule care, subscribe plans, emergency request.
+
+Payment + subscription flow (simulate via stripe-test or mock).
+
+Teleconsult integration placeholder (API integration hooks).
+
+Simple remote-monitoring toggle for device rentals (IoT optional).
+
+MVP pages:
+
+Landing / marketing page
+
+Customer Dashboard (bookings, subscriptions)
+
+Caregiver Dashboard (jobs, profile, availability)
+
+Onboarding wizard for caregivers/vendors
+
+Admin panel (verify users, view reports)
+
+Public search/listing with filters (city, services, rating)
+
+APIs: provide example REST/GraphQL contract files for backend endpoints (auth, onboarding, bookings, payments, verification, telemetry).
+
+Tech stack:
+
+React + TypeScript + Vite
+
+State: React Query (server state) + Context for auth/ui
+
+UI: Tailwind CSS + component library skeleton (atomic components)
+
+Forms: React Hook Form + Zod for validation
+
+Testing: Jest + React Testing Library + MSW for API mocks
+
+Lint/format: ESLint (Airbnb-ish or recommended rules) + Prettier
+
+CI: GitHub Actions with test, lint, build steps
+
+Deployment: Dockerfile + instructions for Vercel/Netlify + sample Kubernetes/Heroku notes
+
+Coding style:
+
+Functional components with hooks
+
+Service layer (api/\*.ts) exposing function calls used by components
+
+Use composable hooks: useAuth, useBookings, useOnboarding, useSubscription
+
+Keep components dumb (UI) and container components orchestrating services
+
+Strong typings for all models (User, CaregiverProfile, Booking, Subscription, Device)
+
+Security & privacy:
+
+Store JWT tokens securely (httpOnly cookie recommended — note in comments)
+
+Input validation + server-side verification placeholders
+
+GDPR/Indian privacy note on storing PII — add masking for docs
+
+Deliverables (generate scaffold & examples):
+
+package.json scripts
+
+src/ folder skeleton
+
+Example src/services/api.ts with typed fetch wrapper
+
+Example component src/features/onboarding/CaregiverOnboardWizard.tsx
+
+Example page src/pages/dashboard/CustomerDashboard.tsx
+
+Example README.md with run/build/test instructions
+
+Example .github/workflows/ci.yml
+
+Example unit + integration test for onboarding step using MSW
+
+Sample env file template .env.example
+
+Acceptance criteria:
+
+App boots with npm install && npm run dev
+
+Mocked API flows work with MSW so UI can be navigated without backend
+
+Test suite runs npm test and has sample coverage
+
+Type-safe service usage in components (no implicit any)
+
+Folder structure (generate)
+/src
+/api # api contracts / mocks
+schema.ts # zod/ts interfaces used by frontend
+client.ts # typed fetch wrapper
+/components # dumb UI primitives (Button, Input, Modal)
+/features
+/auth
+useAuth.ts
+LoginForm.tsx
+AuthProvider.tsx
+/onboarding
+CaregiverOnboardWizard.tsx
+steps/
+PersonalDetails.tsx
+DocumentsUpload.tsx
+VerificationStatus.tsx
+/bookings
+BookingForm.tsx
+BookingList.tsx
+/subscriptions
+SubscriptionList.tsx
+Billing.tsx
+/hooks
+useDebounce.ts
+useModal.ts
+/services
+caregivers.ts # functions: getCaregivers, createProfile, uploadDocs
+bookings.ts
+payments.ts
+verification.ts
+/pages
+index.tsx
+/dashboard
+CustomerDashboard.tsx
+CaregiverDashboard.tsx
+/admin
+AdminPanel.tsx
+/routes
+AppRouter.tsx
+/utils
+formatDate.ts
+currency.ts
+/mocks
+server.ts # MSW setup
+handlers.ts
+main.tsx
+App.tsx
+types.ts
+
+API contract examples (frontend view — include these exact endpoints in the scaffold)
+
+Place in src/api/schema.ts and src/services/\*:
+
+// types.ts (example)
+export type Role = 'customer' | 'caregiver' | 'vendor' | 'admin';
+
+export interface User {
+id: string;
+role: Role;
+name: string;
+email: string;
+phone?: string;
+city?: string;
+}
+
+export interface CaregiverProfile {
+id: string;
+userId: string;
+services: string[]; // e.g. ['nursing', 'physiotherapy', 'adl']
+experienceYears: number;
+verified: boolean;
+verificationStatus: 'pending'|'verified'|'rejected';
+documents: { type: string; url: string }[];
+rating?: number;
+hourlyRate?: number;
+}
+
+export interface Booking {
+id: string;
+customerId: string;
+caregiverId?: string;
+startTime: string;
+endTime?: string;
+status: 'requested'|'confirmed'|'in_progress'|'completed'|'cancelled';
+priceCents: number;
+address: string;
+}
+
+Example REST endpoints (frontend will call):
+
+POST /auth/login -> { token }
+
+GET /caregivers?city=&service=&page= -> list
+
+POST /caregivers -> create profile
+
+POST /caregivers/:id/documents -> upload
+
+POST /bookings -> create booking
+
+GET /bookings?userId= -> list bookings
+
+POST /payments/checkout -> payment session (mock)
+
+POST /verification/request -> start verification
+
+GET /admin/reports -> admin metrics
+
+Example typed fetch wrapper (src/api/client.ts)
+// src/api/client.ts
+import { z } from 'zod';
+
+const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+
+export async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
+const res = await fetch(`${BASE}${path}`, {
+credentials: 'include', // recommend httpOnly cookies for auth tokens
+headers: { 'Content-Type': 'application/json' },
+...opts,
+});
+if (!res.ok) {
+const text = await res.text();
+throw new Error(`API ${res.status} ${text}`);
+}
+return (await res.json()) as T;
+}
+
+Example service function (function-call based approach)
+// src/services/caregivers.ts
+import { apiFetch } from '../api/client';
+import type { CaregiverProfile } from '../types';
+
+export async function getCaregivers(params: { city?: string; service?: string; page?: number }) {
+const qp = new URLSearchParams();
+if (params.city) qp.set('city', params.city);
+if (params.service) qp.set('service', params.service);
+if (params.page) qp.set('page', String(params.page));
+return apiFetch<{ data: CaregiverProfile[] }>(`/caregivers?${qp.toString()}`);
+}
+
+export async function createCaregiver(payload: Partial<CaregiverProfile>) {
+return apiFetch<CaregiverProfile>('/caregivers', {
+method: 'POST',
+body: JSON.stringify(payload),
+});
+}
+
+Example onboarding wizard component
+// src/features/onboarding/CaregiverOnboardWizard.tsx
+import React from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import PersonalDetails from './steps/PersonalDetails';
+import DocumentsUpload from './steps/DocumentsUpload';
+import VerificationStatus from './steps/VerificationStatus';
+import { createCaregiver } from '../../services/caregivers';
+
+const schema = z.object({
+name: z.string().min(2),
+email: z.string().email(),
+services: z.array(z.string()).nonempty(),
+experienceYears: z.number().min(0),
+});
+
+export default function CaregiverOnboardWizard() {
+const methods = useForm({ resolver: zodResolver(schema) });
+
+async function onSubmit(data: any) {
+try {
+await createCaregiver(data);
+// show success toast + redirect to verification status
+} catch (err) {
+// handle errors
+}
+}
+
+return (
+<FormProvider {...methods}>
+<form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+<PersonalDetails />
+<DocumentsUpload />
+<button type="submit" className="btn-primary">Submit for Verification</button>
+<VerificationStatus />
+</form>
+</FormProvider>
+);
+}
+
+Tests & mocks
+
+Use MSW (/src/mocks/handlers.ts) to return fake caregiver lists, booking flows, and verification statuses.
+
+Provide one sample test: onboarding form renders, user fills personal details, submits, and MSW returns success.
+
+ESLint / Prettier / TypeScript
+
+Provide tsconfig.json with strict: true.
+
+ESLint config with TypeScript plugin; Prettier integrated.
+
+package.json scripts:
+
+"scripts": {
+"dev": "vite",
+"build": "tsc && vite build",
+"preview": "vite preview",
+"test": "vitest",
+"lint": "eslint 'src/\*_/_.{ts,tsx}' --fix",
+"format": "prettier --write ."
+}
+
+CI GitHub Actions sketch (.github/workflows/ci.yml)
+
+Steps: checkout, node setup, install, run lint, run test, build, upload artifact.
+
+Run on PRs to main.
+
+README (short)
+
+Overview, how to run local dev (npm i && npm run dev), env vars, testing (npm test), mocking details (MSW), and how to connect to a real backend.
+
+Extra product / GTM notes to embed in README
+
+Start city selection heuristic (elderly population + supply gap), pilot with 100 families and 50 caregivers.
+
+Include data collection fields for CAC & LTV tracking in analytics hooks.
+
+Accessibility & performance
+
+Use semantic HTML, labels for inputs, ARIA attributes for dynamic components
+
+Lazy-load heavy components (device viewer, reports)
+
+Use React Query caching and optimistic updates for booking flows
+
+Output format desired from Cursor
+
+Full repo scaffold with files above.
+
+Working src/main.tsx + AppRouter.tsx + mocked API via MSW so UI is navigable.
+
+One fully implemented feature (Caregiver Onboarding wizard) with tests.
+
+README.md with run/test/deploy steps.
+
+GitHub Actions ci.yml.
+
+Final notes for the AI builder
+
+Be explicit in comments where backend implementation is required (e.g., "replace with real Stripe integration", "use httpOnly cookie for production auth").
+
+Keep responses type-safe and avoid any. Use Zod where helpful for runtime validation.
+
+Keep each service file to 50–150 lines initially; prioritize readability and extendability.
+
+Use small, well-named hooks for domain logic; keep UI layer focused on rendering.
+
+Example local bootstrap command (if you prefer to start locally with Vite)
+
+# create a new Vite + React + TypeScript project
+
+npm create vite@latest home-first-elderly-care -- --template react-ts
+cd home-first-elderly-care
+
+# install recommended deps
+
+npm install react-query react-hook-form zod @hookform/resolvers msw react-router-dom tailwindcss postcss autoprefixer
+npm install -D eslint prettier vitest @testing-library/react @testing-library/jest-dom"
