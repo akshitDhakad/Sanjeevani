@@ -4,6 +4,7 @@
  */
 
 import { useFormContext } from 'react-hook-form';
+import { useAuth } from '../../../features/auth/useAuth';
 import { Input } from '../../../components';
 import type { CaregiverProfileInput } from '../../../api/schema';
 
@@ -12,12 +13,12 @@ const SERVICE_OPTIONS = [
   { value: 'physiotherapy', label: 'Physiotherapy' },
   { value: 'adl', label: 'Activities of Daily Living (ADL)' },
   { value: 'companionship', label: 'Companionship' },
-  { value: 'medication_management', label: 'Medication Management' },
-  { value: 'meal_preparation', label: 'Meal Preparation' },
-  { value: 'transportation', label: 'Transportation' },
+  { value: 'medication', label: 'Medication Management' },
+  { value: 'other', label: 'Other Services' },
 ];
 
 export function PersonalDetails() {
+  const { user } = useAuth();
   const {
     register,
     formState: { errors },
@@ -39,7 +40,8 @@ export function PersonalDetails() {
       }
       // If trying to remove the last service, do nothing (validation will prevent submission)
     } else {
-      setValue('services', [...current, serviceValue] as [string, ...string[]], {
+      const newServices = [...current, serviceValue];
+      setValue('services', newServices as [string, ...string[]], {
         shouldValidate: true,
       });
     }
@@ -52,41 +54,26 @@ export function PersonalDetails() {
           Personal Information
         </h3>
         <p className="text-sm text-gray-600">
-          Please provide your basic information to get started.
+          Please provide your professional information to get started.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label="Full Name"
-          {...register('name')}
-          error={errors.name?.message}
-          required
-        />
-
-        <Input
-          label="Email"
-          type="email"
-          {...register('email')}
-          error={errors.email?.message}
-          required
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          label="Phone Number"
-          type="tel"
-          {...register('phone')}
-          error={errors.phone?.message}
-        />
-
-        <Input
-          label="City"
-          {...register('city')}
-          error={errors.city?.message}
-          required
-        />
+      {/* Display user info (read-only) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Full Name</label>
+          <p className="mt-1 text-sm text-gray-900">{user?.name || 'N/A'}</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <p className="mt-1 text-sm text-gray-900">{user?.email || 'N/A'}</p>
+        </div>
+        {user?.city && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">City</label>
+            <p className="mt-1 text-sm text-gray-900">{user.city}</p>
+          </div>
+        )}
       </div>
 
       <div>

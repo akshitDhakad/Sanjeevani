@@ -5,7 +5,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyProfile, updateProfile, getUsers, getUserById } from '../services/users';
-import type { User, PaginatedResponse } from '../types';
 import type { UpdateUserData } from '../services/users';
 
 /**

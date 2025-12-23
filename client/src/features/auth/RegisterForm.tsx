@@ -11,12 +11,25 @@ import { registerSchema, type RegisterInput } from '../../api/schema';
 import { useAuth } from './useAuth';
 import { getErrorMessage, getValidationErrors } from '../../utils/errorHandler';
 import { Button, Input, Select } from '../../components';
+import type { User } from '../../types';
 
 export function RegisterForm() {
   const navigate = useNavigate();
   const { register: registerUser, isLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string[]> | null>(null);
+
+  const getRedirectPath = (user: User): string => {
+    switch (user.role) {
+      case 'admin':
+        return '/admin';
+      case 'caregiver':
+        return '/caregiver/onboarding';
+      case 'customer':
+      default:
+        return '/customer/dashboard';
+    }
+  };
 
   const {
     register,
@@ -34,12 +47,11 @@ export function RegisterForm() {
     setValidationErrors(null);
     
     try {
-      await registerUser(data);
-      // Redirect based on user role
-      const redirectPath =
-        data.role === 'caregiver'
-          ? '/caregiver/onboarding'
-          : '/customer/dashboard';
+      // Register and get user data
+      const user = await registerUser(data);
+      
+      // Determine redirect path based on user role
+      const redirectPath = getRedirectPath(user);
       navigate(redirectPath);
     } catch (err) {
       const validationErrs = getValidationErrors(err);

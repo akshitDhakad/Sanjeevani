@@ -20,8 +20,8 @@ export function BookingList({ status }: BookingListProps) {
     queryKey: ['bookings', user?.id, status],
     queryFn: () =>
       getBookings({
-        userId: user?.id,
-        status,
+        page: 1,
+        limit: 50,
       }),
     enabled: !!user?.id,
   });
@@ -70,7 +70,7 @@ export function BookingList({ status }: BookingListProps) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Booking #{booking.id.slice(0, 8)}
+                  Booking #{(booking.id || (booking as any)._id || '').slice(0, 8)}
                 </h3>
                 <span
                   className={`px-2 py-1 text-xs font-medium rounded ${

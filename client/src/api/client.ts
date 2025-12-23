@@ -191,7 +191,8 @@ export async function apiFetch<T>(
   const result = await response.json();
   
   // Handle backend response format { success: boolean, data: T }
-  if (result.success !== undefined && result.data !== undefined) {
+  if (result.success !== undefined && 'data' in result) {
+    // Return data even if it's null (valid state for missing resources)
     return result.data as T;
   }
 

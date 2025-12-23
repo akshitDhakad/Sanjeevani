@@ -13,8 +13,8 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<User>;
+  register: (credentials: RegisterCredentials) => Promise<User>;
   logout: () => Promise<void>;
 }
 
@@ -91,12 +91,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
-  const login = useCallback(async (credentials: LoginCredentials) => {
-    await loginMutation.mutateAsync(credentials);
+  const login = useCallback(async (credentials: LoginCredentials): Promise<User> => {
+    const result = await loginMutation.mutateAsync(credentials);
+    return result.user;
   }, [loginMutation]);
 
-  const register = useCallback(async (credentials: RegisterCredentials) => {
-    await registerMutation.mutateAsync(credentials);
+  const register = useCallback(async (credentials: RegisterCredentials): Promise<User> => {
+    const result = await registerMutation.mutateAsync(credentials);
+    return result.user;
   }, [registerMutation]);
 
   const logout = useCallback(async () => {

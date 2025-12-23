@@ -16,12 +16,12 @@ import {
   type CaregiverProfileInput,
 } from '../../api/schema';
 import { createCaregiverProfile, uploadCaregiverDocument } from '../../services/caregivers';
-import { requestVerification } from '../../services/verification';
 import { useAuth } from '../auth/useAuth';
 import { Button, Card } from '../../components';
 import { PersonalDetails } from './steps/PersonalDetails';
 import { DocumentsUpload } from './steps/DocumentsUpload';
 import { VerificationStatus } from './steps/VerificationStatus';
+import { getErrorMessage } from '../../utils/errorHandler';
 
 const STEPS = [
   { id: 1, name: 'Personal Details', component: PersonalDetails },
@@ -34,7 +34,7 @@ export default function CaregiverOnboardWizard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
-  const [uploadedDocuments] = useState<Record<string, File>>({});
+  const [uploadedDocuments, setUploadedDocuments] = useState<Record<string, File>>({});
   const [submissionStatus, setSubmissionStatus] = useState<
     'idle' | 'submitting' | 'success' | 'error'
   >('idle');
@@ -51,38 +51,35 @@ export default function CaregiverOnboardWizard() {
   const createProfileMutation = useMutation({
     mutationFn: createCaregiverProfile,
     onSuccess: async (profile) => {
-      // Upload documents if any
-      const uploadPromises = Object.entries(uploadedDocuments).map(
-        ([type, file]) =>
-          uploadCaregiverDocument(profile.id, file, type).catch((err) => {
-            console.error(`Failed to upload ${type}:`, err);
-            return null;
-          })
-      );
+      try {
+        // Upload documents if any
+        const profileId = (profile as any)._id || profile.id;
+        if (profileId && Object.keys(uploadedDocuments).length > 0) {
+          const uploadPromises = Object.entries(uploadedDocuments).map(
+            ([type, file]) =>
+              uploadCaregiverDocument(file, type as any).catch((err) => {
+                console.error(`Failed to upload ${type}:`, err);
+                return null;
+              })
+          );
 
-      await Promise.all(uploadPromises);
-
-      // Request verification
-      if (user?.id) {
-        try {
-          await requestVerification({
-            userId: user.id,
-            type: 'caregiver',
-          });
-        } catch (err) {
-          console.error('Verification request failed:', err);
+          await Promise.all(uploadPromises);
         }
+
+        // Invalidate queries to refresh caregiver data
+        queryClient.invalidateQueries({ queryKey: ['caregivers'] });
+        queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+
+        setSubmissionStatus('success');
+      } catch (err) {
+        console.error('Error in post-submission steps:', err);
+        // Still mark as success since profile was created
+        setSubmissionStatus('success');
       }
-
-      // Invalidate queries to refresh caregiver data
-      queryClient.invalidateQueries({ queryKey: ['caregivers'] });
-      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
-
-      setSubmissionStatus('success');
     },
-    onError: (err: Error) => {
+    onError: (err: any) => {
       setSubmissionStatus('error');
-      setErrorMessage(err.message || 'Failed to create profile. Please try again.');
+      setErrorMessage(getErrorMessage(err) || 'Failed to create profile. Please try again.');
     },
   });
 
@@ -90,7 +87,7 @@ export default function CaregiverOnboardWizard() {
     // Validate current step fields
     const fieldsToValidate: (keyof CaregiverProfileInput)[] =
       currentStep === 0
-        ? ['name', 'email', 'city', 'services', 'experienceYears']
+        ? ['services', 'experienceYears']
         : [];
     
     const isValid = await methods.trigger(fieldsToValidate);
@@ -108,6 +105,9 @@ export default function CaregiverOnboardWizard() {
   const onSubmit = async (data: CaregiverProfileInput) => {
     setSubmissionStatus('submitting');
     setErrorMessage(null);
+    
+    // Prepare data for submission
+    // Note: hourlyRate is stored as a number (not cents) in the backend
     createProfileMutation.mutate(data);
   };
 
@@ -180,7 +180,10 @@ export default function CaregiverOnboardWizard() {
       <FormProvider {...methods}>
         <Card>
           {CurrentStepComponent ? (
-            <CurrentStepComponent />
+            <CurrentStepComponent 
+              uploadedDocuments={uploadedDocuments}
+              setUploadedDocuments={setUploadedDocuments}
+            />
           ) : (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
@@ -188,22 +191,37 @@ export default function CaregiverOnboardWizard() {
               </h3>
               <div className="space-y-2">
                 <div>
-                  <strong>Name:</strong> {methods.watch('name')}
+                  <strong>Name:</strong> {user?.name || 'N/A'}
                 </div>
                 <div>
-                  <strong>Email:</strong> {methods.watch('email')}
+                  <strong>Email:</strong> {user?.email || 'N/A'}
                 </div>
                 <div>
-                  <strong>City:</strong> {methods.watch('city')}
+                  <strong>City:</strong> {user?.city || 'Not specified'}
                 </div>
                 <div>
                   <strong>Services:</strong>{' '}
-                  {methods.watch('services')?.join(', ')}
+                  {methods.watch('services')?.join(', ') || 'None selected'}
                 </div>
                 <div>
                   <strong>Experience:</strong>{' '}
-                  {methods.watch('experienceYears')} years
+                  {methods.watch('experienceYears') || 0} years
                 </div>
+                {methods.watch('hourlyRate') && (
+                  <div>
+                    <strong>Hourly Rate:</strong> ${(methods.watch('hourlyRate')! / 100).toFixed(2)}/hr
+                  </div>
+                )}
+                {methods.watch('bio') && (
+                  <div>
+                    <strong>Bio:</strong> {methods.watch('bio')}
+                  </div>
+                )}
+                {Object.keys(uploadedDocuments).length > 0 && (
+                  <div>
+                    <strong>Documents:</strong> {Object.keys(uploadedDocuments).length} file(s) uploaded
+                  </div>
+                )}
               </div>
             </div>
           )}

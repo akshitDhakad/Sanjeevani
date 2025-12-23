@@ -19,6 +19,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 // Mock data storage
 let mockUsers: User[] = [
   {
+    _id: '1',
     id: '1',
     role: 'customer',
     name: 'John Doe',
@@ -29,6 +30,7 @@ let mockUsers: User[] = [
     updatedAt: new Date().toISOString(),
   },
   {
+    _id: '2',
     id: '2',
     role: 'caregiver',
     name: 'Jane Smith',
@@ -39,6 +41,7 @@ let mockUsers: User[] = [
     updatedAt: new Date().toISOString(),
   },
   {
+    _id: '3',
     id: '3',
     role: 'admin',
     name: 'Admin User',
@@ -50,6 +53,7 @@ let mockUsers: User[] = [
 
 let mockCaregivers: CaregiverProfile[] = [
   {
+    _id: 'c1',
     id: 'c1',
     userId: '2',
     services: ['nursing', 'physiotherapy'],
@@ -105,6 +109,7 @@ export const handlers = [
 
     // Create new user
     const newUser: User = {
+      _id: `${mockUsers.length + 1}`,
       id: `${mockUsers.length + 1}`,
       role: body.role || 'customer',
       name: body.name,
@@ -215,6 +220,7 @@ export const handlers = [
     const userId = token.replace('mock-token-', '');
 
     const newCaregiver: CaregiverProfile = {
+      _id: `c${mockCaregivers.length + 1}`,
       id: `c${mockCaregivers.length + 1}`,
       userId,
       services: body.services || [],
@@ -274,6 +280,7 @@ export const handlers = [
     const userId = token.replace('mock-token-', '');
 
     const newBooking: Booking = {
+      _id: `b${mockBookings.length + 1}`,
       id: `b${mockBookings.length + 1}`,
       customerId: userId,
       caregiverId: body.caregiverId,

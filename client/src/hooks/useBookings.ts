@@ -19,7 +19,7 @@ import type { BookingInput } from '../api/schema';
  */
 export function useBookings(params?: { page?: number; limit?: number }) {
   return useQuery({
-    queryKey: ['bookings', params],
+    queryKey: ['bookings', 'me', params],
     queryFn: () => getBookings(params),
     staleTime: 30 * 1000, // 30 seconds
     refetchOnWindowFocus: false,

@@ -22,4 +22,5 @@ export type { SpinnerProps } from './Spinner';
 export { DecorativeDoodles } from './DecorativeDoodles';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorMessage } from './ErrorMessage';
+export { HealthGraph } from './HealthGraph';
 

@@ -26,14 +26,28 @@ export class CaregiverController {
 
   /**
    * Get current user's caregiver profile
+   * Returns null if profile doesn't exist (valid state for new caregivers)
    */
   public getMyProfile = asyncHandler(
     async (req: AuthRequest, res: Response, next: NextFunction) => {
-      const profile = await caregiverService.getProfileByUserId(req.user!.userId);
-      res.status(200).json({
-        success: true,
-        data: profile,
-      });
+      try {
+        const profile = await caregiverService.getProfileByUserId(req.user!.userId);
+        res.status(200).json({
+          success: true,
+          data: profile,
+        });
+      } catch (error: any) {
+        // If profile doesn't exist (404), return null instead of error
+        // This is a valid state for caregivers who haven't completed onboarding
+        if (error.statusCode === 404 || error.name === 'NotFoundError') {
+          res.status(200).json({
+            success: true,
+            data: null,
+          });
+        } else {
+          throw error;
+        }
+      }
     }
   );
 

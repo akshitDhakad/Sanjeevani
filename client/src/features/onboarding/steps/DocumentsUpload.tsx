@@ -3,7 +3,6 @@
  * Second step of caregiver onboarding - document verification
  */
 
-import { useState } from 'react';
 import { Button } from '../../../components';
 
 const DOCUMENT_TYPES = [
@@ -17,17 +16,31 @@ const DOCUMENT_TYPES = [
   { value: 'other', label: 'Other Documents', required: false },
 ];
 
-export function DocumentsUpload() {
-  const [uploadedFiles, setUploadedFiles] = useState<
-    Record<string, { file: File; preview?: string }>
-  >({});
+interface DocumentsUploadProps {
+  uploadedDocuments?: Record<string, File>;
+  setUploadedDocuments?: (docs: Record<string, File>) => void;
+}
+
+export function DocumentsUpload({ 
+  uploadedDocuments = {}, 
+  setUploadedDocuments 
+}: DocumentsUploadProps) {
+  const uploadedFiles: Record<string, { file: File; preview?: string }> = {};
+  
+  // Convert File objects to preview format
+  Object.entries(uploadedDocuments).forEach(([type, file]) => {
+    uploadedFiles[type] = {
+      file,
+      preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+    };
+  });
 
   const handleFileChange = (
     type: string,
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !setUploadedDocuments) return;
 
     // Validate file type (images and PDFs)
     const validTypes = [
@@ -47,27 +60,17 @@ export function DocumentsUpload() {
       return;
     }
 
-    setUploadedFiles((prev) => ({
-      ...prev,
-      [type]: {
-        file,
-        preview:
-          file.type.startsWith('image/')
-            ? URL.createObjectURL(file)
-            : undefined,
-      },
-    }));
+    setUploadedDocuments({
+      ...uploadedDocuments,
+      [type]: file,
+    });
   };
 
   const removeFile = (type: string) => {
-    setUploadedFiles((prev) => {
-      const updated = { ...prev };
-      if (updated[type]?.preview) {
-        URL.revokeObjectURL(updated[type].preview!);
-      }
-      delete updated[type];
-      return updated;
-    });
+    if (!setUploadedDocuments) return;
+    const updated = { ...uploadedDocuments };
+    delete updated[type];
+    setUploadedDocuments(updated);
   };
 
   return (

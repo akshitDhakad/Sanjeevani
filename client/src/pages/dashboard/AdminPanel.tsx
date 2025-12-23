@@ -106,7 +106,7 @@ export function AdminPanel() {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-semibold text-gray-900">
-                          Profile #{profile.id.slice(0, 8)}
+                          Profile #{(profile.id || (profile as any)._id || '').slice(0, 8)}
                         </p>
                         <p className="text-sm text-gray-600">
                           Services: {profile.services.join(', ')}

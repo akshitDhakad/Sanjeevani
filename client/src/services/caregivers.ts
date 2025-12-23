@@ -67,9 +67,12 @@ export async function updateCaregiverProfile(
 
 /**
  * Get caregiver's own profile
+ * Returns null if profile doesn't exist (valid state for new caregivers)
  */
-export async function getMyCaregiverProfile(): Promise<CaregiverProfile> {
-  return apiGet<CaregiverProfile>('/caregivers/profile/me');
+export async function getMyCaregiverProfile(): Promise<CaregiverProfile | null> {
+  const result = await apiGet<CaregiverProfile | null>('/caregivers/profile/me');
+  // Backend returns null if profile doesn't exist (200 status with null data)
+  return result;
 }
 
 /**

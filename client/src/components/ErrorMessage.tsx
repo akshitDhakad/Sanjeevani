@@ -3,7 +3,6 @@
  * Displays user-friendly error messages
  */
 
-import React from 'react';
 import { getErrorMessage, getValidationErrors } from '../utils/errorHandler';
 
 interface ErrorMessageProps {

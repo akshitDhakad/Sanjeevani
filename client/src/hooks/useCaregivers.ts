@@ -11,7 +11,7 @@ import {
   createCaregiverProfile,
   updateCaregiverProfile,
 } from '../services/caregivers';
-import type { CaregiverProfile, SearchFilters } from '../types';
+import type { SearchFilters } from '../types';
 import type { CaregiverProfileInput } from '../api/schema';
 
 /**
@@ -46,7 +46,13 @@ export function useMyCaregiverProfile() {
     queryKey: ['caregivers', 'me'],
     queryFn: getMyCaregiverProfile,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: false,
+    retry: (failureCount, error: any) => {
+      // Don't retry on 404 (profile doesn't exist yet)
+      if (error?.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 

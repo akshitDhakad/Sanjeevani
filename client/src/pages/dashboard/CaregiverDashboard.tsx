@@ -5,7 +5,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { getMyCaregiverProfile } from '../../services/caregivers';
+import { useMyCaregiverProfile } from '../../hooks/useCaregivers';
 import { getBookings } from '../../services/bookings';
 import { useAuth } from '../../features/auth/useAuth';
 import { Card, Button, Spinner, DecorativeDoodles } from '../../components';
@@ -14,20 +14,20 @@ import { VerificationStatus } from '../../features/onboarding/steps/Verification
 export function CaregiverDashboard() {
   const { user } = useAuth();
 
-  const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ['caregiver', 'me'],
-    queryFn: getMyCaregiverProfile,
-  });
+  const { 
+    data: profile, 
+    isLoading: profileLoading, 
+    error: profileError 
+  } = useMyCaregiverProfile();
 
   const { data: bookingsData, isLoading: bookingsLoading } = useQuery({
-    queryKey: ['bookings', 'caregiver', user?.id],
-    queryFn: () =>
-      getBookings({
-        userId: user?.id,
-      }),
-    enabled: !!user?.id,
+    queryKey: ['bookings', 'me'],
+    queryFn: () => getBookings(),
+    enabled: !!user,
+    retry: false,
   });
 
+  // Show loading only while fetching (not on error)
   if (profileLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -36,7 +36,31 @@ export function CaregiverDashboard() {
     );
   }
 
+  // Handle errors (except 404 which is handled as null profile)
+  if (profileError && (profileError as any)?.status !== 404) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Card className="max-w-md">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Error Loading Profile
+            </h2>
+            <p className="text-gray-600 mb-4">
+              {(profileError as any)?.message || 'Failed to load caregiver profile'}
+            </p>
+            <Button onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   const bookings = bookingsData?.data || [];
+  
+  // Handle both _id and id fields for MongoDB compatibility
+  const getBookingId = (booking: any) => booking._id || booking.id;
   const pendingBookings = bookings.filter((b) => b.status === 'requested');
   const activeBookings = bookings.filter(
     (b) => b.status === 'confirmed' || b.status === 'in_progress'
@@ -132,15 +156,17 @@ export function CaregiverDashboard() {
                     </p>
                   ) : (
                     <div className="space-y-3">
-                      {bookings.slice(0, 5).map((booking) => (
+                      {bookings.slice(0, 5).map((booking) => {
+                        const bookingId = getBookingId(booking);
+                        return (
                         <div
-                          key={booking.id}
+                          key={bookingId}
                           className="p-4 border border-gray-200 rounded-lg"
                         >
                           <div className="flex justify-between items-start">
                             <div>
                               <p className="font-semibold text-gray-900">
-                                Booking #{booking.id.slice(0, 8)}
+                                Booking #{bookingId.slice(0, 8)}
                               </p>
                               <p className="text-sm text-gray-600">
                                 {booking.address}
@@ -154,7 +180,8 @@ export function CaregiverDashboard() {
                             </Button>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </Card>

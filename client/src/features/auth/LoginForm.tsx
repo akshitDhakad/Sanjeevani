@@ -11,6 +11,7 @@ import { loginSchema, type LoginInput } from '../../api/schema';
 import { useAuth } from './useAuth';
 import { getErrorMessage, getValidationErrors } from '../../utils/errorHandler';
 import { Button, Input } from '../../components';
+import type { User } from '../../types';
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -26,15 +27,28 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
+  const getRedirectPath = (user: User): string => {
+    switch (user.role) {
+      case 'admin':
+        return '/admin';
+      case 'caregiver':
+        return '/caregiver/dashboard';
+      case 'customer':
+      default:
+        return '/customer/dashboard';
+    }
+  };
+
   const onSubmit = async (data: LoginInput) => {
     setError(null);
     setValidationErrors(null);
     
     try {
-      await login(data);
-      // Redirect will be handled by AuthProvider after successful login
-      // Get user from context to determine redirect path
-      const redirectPath = '/customer/dashboard'; // Default, will be updated based on user role
+      // Login and get user data
+      const user = await login(data);
+      
+      // Determine redirect path based on user role
+      const redirectPath = getRedirectPath(user);
       navigate(redirectPath);
     } catch (err) {
       const validationErrs = getValidationErrors(err);
