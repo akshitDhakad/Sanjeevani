@@ -4,7 +4,7 @@
  */
 
 import { User, IUser } from '../models/User';
-import { NotFoundError, BadRequestError } from '../utils/errors/AppError';
+import { NotFoundError } from '../utils/errors/AppError';
 
 export interface UpdateUserData {
   name?: string;

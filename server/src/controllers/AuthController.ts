@@ -11,7 +11,7 @@ export class AuthController {
   /**
    * Register new user
    */
-  public register = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  public register = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
     const result = await authService.register(req.body);
     res.status(201).json({
       success: true,
@@ -22,7 +22,7 @@ export class AuthController {
   /**
    * Login user
    */
-  public login = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  public login = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
     const result = await authService.login(req.body);
     res.status(200).json({
       success: true,
@@ -33,13 +33,14 @@ export class AuthController {
   /**
    * Refresh access token
    */
-  public refreshToken = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  public refreshToken = asyncHandler(async (req: Request, res: Response, _next: NextFunction) => {
     const { refreshToken } = req.body;
     if (!refreshToken) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: 'Refresh token is required' },
       });
+      return;
     }
 
     const result = await authService.refreshToken(refreshToken);
@@ -52,7 +53,7 @@ export class AuthController {
   /**
    * Get current user
    */
-  public getMe = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  public getMe = asyncHandler(async (req: AuthRequest, res: Response, _next: NextFunction) => {
     const user = await authService.getUserById(req.user!.userId);
     res.status(200).json({
       success: true,

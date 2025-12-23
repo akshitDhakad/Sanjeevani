@@ -12,7 +12,7 @@ export class BookingController {
    * Create a new booking
    */
   public createBooking = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       const booking = await bookingService.createBooking({
         customerId: req.user!.userId,
         ...req.body,
@@ -29,7 +29,7 @@ export class BookingController {
   /**
    * Get booking by ID
    */
-  public getBooking = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  public getBooking = asyncHandler(async (req: AuthRequest, res: Response, _next: NextFunction) => {
     const booking = await bookingService.getBookingById(req.params.id);
     res.status(200).json({
       success: true,
@@ -41,7 +41,7 @@ export class BookingController {
    * Get user's bookings
    */
   public getMyBookings = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
@@ -63,7 +63,7 @@ export class BookingController {
    * Update booking
    */
   public updateBooking = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       const booking = await bookingService.updateBooking(
         req.params.id,
         req.user!.userId,
@@ -84,7 +84,7 @@ export class BookingController {
    * Cancel booking
    */
   public cancelBooking = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       const booking = await bookingService.cancelBooking(req.params.id, req.user!.userId);
       res.status(200).json({
         success: true,

@@ -12,7 +12,7 @@ import {
   getBookingsQuerySchema,
 } from '../validators/booking.validator';
 
-const router = Router();
+const router: Router = Router();
 
 // All routes require authentication
 router.use(protect);

@@ -59,7 +59,7 @@ export class App {
     this.app.use('/api', apiLimiter);
 
     // Health check endpoint
-    this.app.get('/health', (req, res) => {
+    this.app.get('/health', (_req, res) => {
       res.status(200).json({
         success: true,
         message: 'Server is running',
@@ -77,7 +77,7 @@ export class App {
     this.app.use('/api/v1', routes);
 
     // Root endpoint
-    this.app.get('/', (req, res) => {
+    this.app.get('/', (_req, res) => {
       res.status(200).json({
         success: true,
         message: 'Home-First Elderly Care Platform API',

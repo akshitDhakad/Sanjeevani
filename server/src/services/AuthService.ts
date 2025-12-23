@@ -66,7 +66,7 @@ export class AuthService {
     });
 
     return {
-      user: user.toJSON(),
+      user: user.toJSON() as unknown as Omit<IUser, 'password'>,
       ...tokens,
     };
   }
@@ -102,7 +102,7 @@ export class AuthService {
     });
 
     return {
-      user: user.toJSON(),
+      user: user.toJSON() as unknown as Omit<IUser, 'password'>,
       ...tokens,
     };
   }
@@ -168,8 +168,8 @@ export class AuthService {
    */
   private generateAccessToken(payload: TokenPayload): string {
     return jwt.sign(payload, config.JWT_SECRET, {
-      expiresIn: config.JWT_EXPIRE,
-    });
+      expiresIn: config.JWT_EXPIRE as string,
+    } as jwt.SignOptions);
   }
 
   /**
@@ -177,8 +177,8 @@ export class AuthService {
    */
   private generateRefreshToken(payload: TokenPayload): string {
     return jwt.sign(payload, config.JWT_REFRESH_SECRET, {
-      expiresIn: config.JWT_REFRESH_EXPIRE,
-    });
+      expiresIn: config.JWT_REFRESH_EXPIRE as string,
+    } as jwt.SignOptions);
   }
 
   /**

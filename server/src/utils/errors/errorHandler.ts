@@ -8,7 +8,7 @@ import { config } from '../../config/env';
 
 export const errorHandler = (
   err: Error | AppError,
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): void => {
@@ -97,7 +97,7 @@ export const asyncHandler = (fn: Function) => {
 /**
  * 404 Not Found handler
  */
-export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
+export const notFoundHandler = (req: Request, res: Response, _next: NextFunction): void => {
   res.status(404).json({
     success: false,
     error: {

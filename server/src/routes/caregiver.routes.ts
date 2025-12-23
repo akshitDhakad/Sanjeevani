@@ -13,7 +13,7 @@ import {
   updateVerificationStatusSchema,
 } from '../validators/caregiver.validator';
 
-const router = Router();
+const router: Router = Router();
 
 // Public routes
 router.get('/search', validateQuery(searchCaregiversQuerySchema), caregiverController.searchCaregivers);

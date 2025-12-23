@@ -8,7 +8,7 @@ import { protect, restrictTo } from '../middleware/auth';
 import { validateBody, validateQuery } from '../middleware/validation';
 import { updateUserSchema, getUserQuerySchema } from '../validators/user.validator';
 
-const router = Router();
+const router: Router = Router();
 
 // All routes require authentication
 router.use(protect);

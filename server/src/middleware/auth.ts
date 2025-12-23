@@ -19,7 +19,7 @@ export interface AuthRequest extends Request {
  */
 export const protect = async (
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
@@ -47,7 +47,7 @@ export const protect = async (
  * Restrict routes to specific roles
  */
 export const restrictTo = (...roles: string[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: AuthRequest, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       return next(new UnauthorizedError('You must be logged in'));
     }

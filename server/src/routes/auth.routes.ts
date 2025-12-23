@@ -9,7 +9,7 @@ import { validateBody } from '../middleware/validation';
 import { authLimiter } from '../middleware/rateLimiter';
 import { registerSchema, loginSchema, refreshTokenSchema } from '../validators/auth.validator';
 
-const router = Router();
+const router: Router = Router();
 
 router.post('/register', authLimiter, validateBody(registerSchema), authController.register);
 router.post('/login', authLimiter, validateBody(loginSchema), authController.login);

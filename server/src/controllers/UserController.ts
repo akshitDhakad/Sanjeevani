@@ -11,7 +11,7 @@ export class UserController {
   /**
    * Get current user profile
    */
-  public getProfile = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  public getProfile = asyncHandler(async (req: AuthRequest, res: Response, _next: NextFunction) => {
     const user = await userService.getUserById(req.user!.userId);
     res.status(200).json({
       success: true,
@@ -23,7 +23,7 @@ export class UserController {
    * Update current user profile
    */
   public updateProfile = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       const user = await userService.updateUser(req.user!.userId, req.body);
       res.status(200).json({
         success: true,
@@ -35,7 +35,7 @@ export class UserController {
   /**
    * Get all users (admin only)
    */
-  public getUsers = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  public getUsers = asyncHandler(async (req: AuthRequest, res: Response, _next: NextFunction) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
 
@@ -54,7 +54,7 @@ export class UserController {
   /**
    * Get user by ID (admin only)
    */
-  public getUserById = asyncHandler(async (req: AuthRequest, res: Response, next: NextFunction) => {
+  public getUserById = asyncHandler(async (req: AuthRequest, res: Response, _next: NextFunction) => {
     const user = await userService.getUserById(req.params.id);
     res.status(200).json({
       success: true,

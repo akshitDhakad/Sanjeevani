@@ -2,7 +2,7 @@
  * Caregiver controller
  */
 
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { caregiverService } from '../services/CaregiverService';
 import { asyncHandler } from '../utils/errors/errorHandler';
@@ -12,7 +12,7 @@ export class CaregiverController {
    * Create caregiver profile
    */
   public createProfile = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       const profile = await caregiverService.createProfile({
         userId: req.user!.userId,
         ...req.body,
@@ -29,7 +29,7 @@ export class CaregiverController {
    * Returns null if profile doesn't exist (valid state for new caregivers)
    */
   public getMyProfile = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       try {
         const profile = await caregiverService.getProfileByUserId(req.user!.userId);
         res.status(200).json({
@@ -55,7 +55,7 @@ export class CaregiverController {
    * Update caregiver profile
    */
   public updateProfile = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       const profile = await caregiverService.updateProfile(req.user!.userId, req.body);
       res.status(200).json({
         success: true,
@@ -68,7 +68,7 @@ export class CaregiverController {
    * Search caregivers
    */
   public searchCaregivers = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const filters = {
         city: req.query.city as string,
         service: req.query.service as string,
@@ -91,7 +91,7 @@ export class CaregiverController {
    * Get caregiver profile by user ID
    */
   public getProfileByUserId = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, _next: NextFunction) => {
       const profile = await caregiverService.getProfileByUserId(req.params.userId);
       res.status(200).json({
         success: true,
@@ -104,7 +104,7 @@ export class CaregiverController {
    * Update verification status (admin only)
    */
   public updateVerificationStatus = asyncHandler(
-    async (req: AuthRequest, res: Response, next: NextFunction) => {
+    async (req: AuthRequest, res: Response, _next: NextFunction) => {
       const profile = await caregiverService.updateVerificationStatus(
         req.params.userId,
         req.body.status
