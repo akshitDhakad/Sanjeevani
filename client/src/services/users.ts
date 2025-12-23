@@ -45,9 +45,57 @@ export async function getUsers(params?: {
   if (params?.isActive !== undefined) queryParams.set('isActive', String(params.isActive));
 
   const queryString = queryParams.toString();
-  return apiGet<PaginatedResponse<User>>(
-    `/users${queryString ? `?${queryString}` : ''}`
+  
+  // Backend returns { success: true, data: [...], pagination: {...} }
+  // We need to fetch the full response to preserve pagination
+  const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+  const API_VERSION = '/api/v1';
+  const token = localStorage.getItem('auth_token');
+  
+  const response = await fetch(
+    `${BASE_URL}${API_VERSION}/users${queryString ? `?${queryString}` : ''}`,
+    {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+    }
   );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error?.message || `Failed to fetch users: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  
+  // Backend returns { success: true, data: [...], pagination: {...} }
+  if (result.success && result.data && result.pagination) {
+    return {
+      data: result.data,
+      pagination: result.pagination,
+    };
+  }
+
+  // Fallback: if data is an array but no pagination, create default pagination
+  if (Array.isArray(result.data)) {
+    return {
+      data: result.data,
+      pagination: {
+        page: params?.page || 1,
+        limit: params?.limit || result.data.length || 10,
+        total: result.data.length,
+        totalPages: 1,
+      },
+    };
+  }
+
+  // If result itself is the paginated response
+  if (result.data && result.pagination) {
+    return result as PaginatedResponse<User>;
+  }
+
+  throw new Error('Unexpected response format from users API');
 }
 
 /**

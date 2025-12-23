@@ -25,7 +25,7 @@ import {
   Card,
   Spinner,
   Button,
-  DecorativeDoodles,
+  DashboardLayout,
   Input,
   Select,
 } from '../../components';
@@ -48,9 +48,10 @@ export function AdminPanel() {
   // Queries
   const { data: reports, isLoading: reportsLoading } = useAdminReports();
   const { data: pendingVerifications, isLoading: verificationsLoading } = usePendingVerifications();
-  const { data: usersData, isLoading: usersLoading } = useAdminUsers({
+  const { data: usersData, isLoading: usersLoading, error: usersError } = useAdminUsers({
     role: roleFilter || undefined,
     isActive: statusFilter === 'active' ? true : statusFilter === 'blocked' ? false : undefined,
+    page: 1,
     limit: 50,
   });
   const { data: caregiversData } = useCaregivers({});
@@ -100,70 +101,124 @@ export function AdminPanel() {
     );
   }
 
+  // Sidebar navigation items
+  const sidebarItems = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('overview');
+        setSelectedUserId(null);
+      },
+      active: activeTab === 'overview',
+    },
+    {
+      id: 'users',
+      label: 'Users',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('users');
+        setSelectedUserId(null);
+      },
+      active: activeTab === 'users',
+    },
+    {
+      id: 'caregivers',
+      label: 'Caregivers',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('caregivers');
+        setSelectedUserId(null);
+      },
+      active: activeTab === 'caregivers',
+    },
+    {
+      id: 'verifications',
+      label: 'Verifications',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('verifications');
+        setSelectedUserId(null);
+      },
+      active: activeTab === 'verifications',
+      badge: pendingVerifications?.length,
+    },
+    {
+      id: 'subscriptions',
+      label: 'Subscriptions',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('subscriptions');
+        setSelectedUserId(null);
+      },
+      active: activeTab === 'subscriptions',
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('analytics');
+        setSelectedUserId(null);
+      },
+      active: activeTab === 'analytics',
+    },
+    {
+      id: 'chats',
+      label: 'Chat Analytics',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      ),
+      onClick: () => {
+        setActiveTab('chats');
+        setSelectedUserId(null);
+      },
+      active: activeTab === 'chats',
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50/30 relative overflow-hidden">
-      <DecorativeDoodles variant="light" density="low" />
-
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
-              <p className="text-gray-600 mt-2">
-                Complete platform management and analytics dashboard
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-                Admin Mode
-              </span>
-            </div>
-          </div>
-
-          {/* Tab Navigation */}
-          <div className="mt-6 flex gap-2 overflow-x-auto">
-            {[
-              { id: 'overview', label: 'Overview' },
-              { id: 'users', label: 'Users' },
-              { id: 'caregivers', label: 'Caregivers' },
-              { id: 'verifications', label: 'Verifications' },
-              { id: 'subscriptions', label: 'Subscriptions' },
-              { id: 'analytics', label: 'Analytics' },
-              { id: 'chats', label: 'Chat Analytics' },
-            ].map((tab) => (
-              <Button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id as TabType);
-                  setSelectedUserId(null);
-                }}
-                variant={activeTab === tab.id ? 'primary' : 'ghost'}
-                size="sm"
-                className={`whitespace-nowrap capitalize ${
-                  activeTab !== tab.id
-                    ? 'bg-white border border-gray-200 hover:bg-gray-50'
-                    : ''
-                }`}
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout
+      sidebarItems={sidebarItems}
+      title="Admin Panel"
+    >
+      <div className="space-y-6">
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Key Metrics */}
-            {reportsLoading ? (
-              <div className="flex justify-center p-8">
-                <Spinner size="lg" />
-              </div>
-            ) : reports ? (
+        {reportsLoading ? (
+          <div className="flex justify-center p-8">
+            <Spinner size="lg" />
+          </div>
+        ) : reports ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none shadow-lg">
                   <div className="flex justify-between items-start">
@@ -178,7 +233,7 @@ export function AdminPanel() {
                       </svg>
                     </div>
                   </div>
-                </Card>
+            </Card>
 
                 <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-none shadow-lg">
                   <div className="flex justify-between items-start">
@@ -193,7 +248,7 @@ export function AdminPanel() {
                       </svg>
                     </div>
                   </div>
-                </Card>
+            </Card>
 
                 <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-none shadow-lg">
                   <div className="flex justify-between items-start">
@@ -208,15 +263,15 @@ export function AdminPanel() {
                       </svg>
                     </div>
                   </div>
-                </Card>
+            </Card>
 
                 <Card className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white border-none shadow-lg">
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-yellow-100 text-sm font-medium">Revenue</p>
                       <p className="text-3xl font-bold mt-2">
-                        ${(reports.revenueCents / 100).toFixed(2)}
-                      </p>
+                ${(reports.revenueCents / 100).toFixed(2)}
+              </p>
                       <p className="text-yellow-100 text-xs mt-1">Total platform revenue</p>
                     </div>
                     <div className="bg-white/20 p-3 rounded-lg">
@@ -226,9 +281,9 @@ export function AdminPanel() {
                       </svg>
                     </div>
                   </div>
-                </Card>
-              </div>
-            ) : null}
+            </Card>
+          </div>
+        ) : null}
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -292,6 +347,7 @@ export function AdminPanel() {
           <UserManagementTab
             users={filteredUsers}
             isLoading={usersLoading}
+            error={usersError}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             roleFilter={roleFilter}
@@ -357,7 +413,7 @@ export function AdminPanel() {
           />
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 
@@ -365,6 +421,7 @@ export function AdminPanel() {
 function UserManagementTab({
   users,
   isLoading,
+  error,
   searchTerm,
   setSearchTerm,
   roleFilter,
@@ -464,6 +521,18 @@ function UserManagementTab({
             {isLoading ? (
               <div className="flex justify-center p-8">
                 <Spinner />
+              </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-red-600 mb-2">Error loading users</p>
+                <p className="text-sm text-gray-600">{getErrorMessage(error)}</p>
+                <Button
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => window.location.reload()}
+                >
+                  Retry
+                </Button>
               </div>
             ) : users.length === 0 ? (
               <p className="text-gray-600 text-center py-8">No users found.</p>
@@ -756,7 +825,7 @@ function CaregiverManagementTab({ caregivers, performance, selectedUserId, setSe
         {caregivers.length === 0 ? (
           <p className="text-gray-600 text-center py-8">No caregivers found.</p>
         ) : (
-          <div className="space-y-3">
+              <div className="space-y-3">
             {caregivers.map((caregiver: CaregiverProfile) => {
               const userId = typeof caregiver.userId === 'string' ? caregiver.userId : caregiver.userId._id;
               return (
@@ -768,13 +837,13 @@ function CaregiverManagementTab({ caregivers, performance, selectedUserId, setSe
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                   onClick={() => setSelectedUserId(userId)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold text-gray-900">
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold text-gray-900">
                         {typeof caregiver.userId === 'object' ? caregiver.userId.name : 'Unknown'}
-                      </p>
-                      <p className="text-sm text-gray-600">
+                        </p>
+                        <p className="text-sm text-gray-600">
                         {caregiver.services.join(', ')} • {caregiver.experienceYears} years
                       </p>
                       {caregiver.rating && (
@@ -886,11 +955,11 @@ function VerificationsTab({ verifications, isLoading, approveMutation, rejectMut
                       {typeof profile.userId === 'object' ? profile.userId.name : 'Unknown User'}
                     </p>
                     <p className="text-sm text-gray-600 mt-1">
-                      Services: {profile.services.join(', ')}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Experience: {profile.experienceYears} years
-                    </p>
+                          Services: {profile.services.join(', ')}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Experience: {profile.experienceYears} years
+                        </p>
                     {profile.bio && (
                       <p className="text-sm text-gray-600 mt-2">{profile.bio}</p>
                     )}
@@ -899,26 +968,26 @@ function VerificationsTab({ verifications, isLoading, approveMutation, rejectMut
                         {profile.documents.length} document(s) uploaded
                       </p>
                     )}
-                  </div>
-                  <div className="flex gap-2">
+                      </div>
+                      <div className="flex gap-2">
                     <Button
                       size="sm"
                       variant="primary"
                       onClick={() => handleApprove(userId)}
                       disabled={approveMutation.isPending}
                     >
-                      Approve
-                    </Button>
+                          Approve
+                        </Button>
                     <Button
                       size="sm"
                       variant="danger"
                       onClick={() => handleReject(userId)}
                       disabled={rejectMutation.isPending}
                     >
-                      Reject
-                    </Button>
-                  </div>
-                </div>
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
               </div>
             );
           })}
@@ -954,13 +1023,13 @@ function SubscriptionsTab({
             >
               <p className="font-semibold text-gray-900">{user.name}</p>
               <p className="text-sm text-gray-600">{user.email}</p>
-            </div>
-          ))}
-        </div>
-      </Card>
+                  </div>
+                ))}
+              </div>
+          </Card>
 
       {selectedUserId && subscriptions && (
-        <Card>
+          <Card>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900">User Subscriptions</h3>
             <Button
@@ -986,23 +1055,23 @@ function SubscriptionsTab({
             >
               Add Subscription Plan
             </Button>
-          </div>
+              </div>
           {subscriptions.length > 0 ? (
-            <div className="space-y-3">
+              <div className="space-y-3">
               {subscriptions.map((sub: Subscription) => (
-                <div
+                  <div
                   key={sub._id}
                   className="p-4 bg-gray-50 rounded-lg flex justify-between items-center"
-                >
-                  <div>
+                  >
+                      <div>
                     <p className="font-semibold text-gray-900">{sub.planName}</p>
                     <p className="text-sm text-gray-600">
                       {formatCurrency(sub.priceCents)}/{sub.billingCycle}
-                    </p>
+                        </p>
                     <p className="text-xs text-gray-500">
                       Started: {formatDate(sub.startDate)} • Status: {sub.status}
-                    </p>
-                  </div>
+                        </p>
+                      </div>
                   {sub.status === 'active' && (
                     <Button
                       size="sm"
@@ -1017,15 +1086,15 @@ function SubscriptionsTab({
                       }}
                     >
                       Cancel
-                    </Button>
+                      </Button>
                   )}
-                </div>
-              ))}
-            </div>
-          ) : (
+                  </div>
+                ))}
+              </div>
+            ) : (
             <p className="text-gray-600 text-center py-8">No subscriptions found</p>
-          )}
-        </Card>
+            )}
+          </Card>
       )}
     </div>
   );
@@ -1037,7 +1106,7 @@ function AnalyticsTab({ platformAnalytics: _platformAnalytics, isLoading }: any)
     return (
       <div className="flex justify-center p-8">
         <Spinner size="lg" />
-      </div>
+        </div>
     );
   }
 

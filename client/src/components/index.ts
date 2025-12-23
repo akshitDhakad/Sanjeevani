@@ -23,4 +23,10 @@ export { DecorativeDoodles } from './DecorativeDoodles';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorMessage } from './ErrorMessage';
 export { HealthGraph } from './HealthGraph';
+export { Sidebar } from './Sidebar';
+export { DashboardLayout } from './DashboardLayout';
+export { EmergencyRequest } from './EmergencyRequest';
+export { ProfileSection } from './ProfileSection';
+export { QuickActions } from './QuickActions';
+export { UpcomingSchedule } from './UpcomingSchedule';
 

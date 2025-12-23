@@ -18,11 +18,13 @@ import {
   Button,
   Select,
   Spinner,
-  DecorativeDoodles,
+  DashboardLayout,
+  ProfileSection,
+  QuickActions,
+  UpcomingSchedule,
 } from '../../components';
 import { HealthGraph } from '../../components/HealthGraph';
 import {
-  formatDate,
   formatTime,
   formatDateTime,
   getTimeUntil,
@@ -75,6 +77,7 @@ export function CustomerDashboard() {
     
     // Active care hours this month
     const monthlyBookings = bookings.filter((b) => {
+      if (!b || !b.startTime) return false;
       const bookingDate = parseISO(b.startTime);
       return bookingDate >= startOfMonth && b.status !== 'cancelled';
     });
@@ -91,29 +94,31 @@ export function CustomerDashboard() {
     // Next appointment
     const upcomingBookings = bookings
       .filter((b) => {
+        if (!b || !b.startTime) return false;
         const bookingDate = parseISO(b.startTime);
         return bookingDate >= now && ['requested', 'confirmed'].includes(b.status);
       })
       .sort((a, b) => parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime());
     
-    const nextAppointment = upcomingBookings[0];
+    const nextAppointment = upcomingBookings[0] || null;
     
     // Today's bookings
     const todayBookings = bookings.filter((b) => {
+      if (!b || !b.startTime) return false;
       const bookingDate = parseISO(b.startTime);
       return isToday(bookingDate) && b.status !== 'cancelled';
     });
     
     // Completed bookings
-    const completedBookings = bookings.filter((b) => b.status === 'completed');
+    const completedBookings = bookings.filter((b) => b && b.status === 'completed');
     
     // Total spent this month
-    const monthlySpent = monthlyBookings.reduce((total, b) => total + b.priceCents, 0);
+    const monthlySpent = monthlyBookings.reduce((total, b) => total + (b.priceCents || 0), 0);
     
     return {
       activeHours: activeHours.toFixed(1),
       nextAppointment,
-      todayBookings,
+      todayBookings: todayBookings || [],
       completedBookings: completedBookings.length,
       monthlySpent,
       totalBookings: bookings.length,
@@ -136,70 +141,75 @@ export function CustomerDashboard() {
     return null;
   };
 
+  // Sidebar navigation items
+  const sidebarItems = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      ),
+      onClick: () => setActiveTab('overview'),
+      active: activeTab === 'overview',
+    },
+    {
+      id: 'health',
+      label: 'Health Monitoring',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      onClick: () => setActiveTab('health'),
+      active: activeTab === 'health',
+    },
+    {
+      id: 'caregivers',
+      label: 'Find Caregivers',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      ),
+      onClick: () => setActiveTab('caregivers'),
+      active: activeTab === 'caregivers',
+    },
+    {
+      id: 'schedule',
+      label: 'Care Schedule',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      ),
+      onClick: () => setActiveTab('schedule'),
+      active: activeTab === 'schedule',
+    },
+    {
+      id: 'emergency',
+      label: 'Emergency Request',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      ),
+      path: '/bookings/new',
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50/30 relative overflow-hidden">
-      <DecorativeDoodles variant="light" density="low" />
-
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Welcome back, {user?.name || 'Customer'}!
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Your complete care management dashboard
-              </p>
-            </div>
-            <Link to="/bookings/new">
-              <Button variant="primary" className="shadow-md">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Emergency Request
-              </Button>
-            </Link>
-          </div>
-
-          {/* Tab Navigation */}
-          <div className="mt-6 flex gap-2 overflow-x-auto">
-            {(['overview', 'health', 'caregivers', 'schedule'] as const).map((tab) => (
-              <Button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                variant={activeTab === tab ? 'primary' : 'ghost'}
-                size="sm"
-                className={`whitespace-nowrap capitalize ${
-                  activeTab !== tab
-                    ? 'bg-white border border-gray-200 hover:bg-gray-50'
-                    : ''
-                }`}
-              >
-                {tab === 'overview' ? 'Overview' : tab === 'health' ? 'Health Monitoring' : tab === 'caregivers' ? 'Find Caregivers' : 'Care Schedule'}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout
+      sidebarItems={sidebarItems}
+      title={`Welcome back, ${user?.name || 'Customer'}!`}
+    >
+      <div className="space-y-6">
         {/* Overview Tab */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-8 space-y-6">
               {/* Key Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card className="bg-gradient-to-br from-primary-500 to-primary-600 text-white border-none shadow-lg">
@@ -307,7 +317,7 @@ export function CustomerDashboard() {
                   <div className="flex justify-center p-8">
                     <Spinner />
                   </div>
-                ) : metrics.todayBookings.length === 0 ? (
+                ) : !metrics.todayBookings || metrics.todayBookings.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-gray-600">No bookings scheduled for today</p>
                     <Link to="/bookings/new">
@@ -318,7 +328,7 @@ export function CustomerDashboard() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {metrics.todayBookings.map((booking) => {
+                    {(metrics.todayBookings || []).map((booking) => {
                       const bookingId = (booking as any)._id || booking.id;
                       const startTime = parseISO(booking.startTime);
                       const statusColors = {
@@ -391,7 +401,7 @@ export function CustomerDashboard() {
                   <div className="flex justify-center p-8">
                     <Spinner />
                   </div>
-                ) : bookingsData?.data.length === 0 ? (
+                ) : !bookingsData?.data || bookingsData.data.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-gray-600">No bookings yet</p>
                     <Link to="/bookings/new">
@@ -402,7 +412,7 @@ export function CustomerDashboard() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {bookingsData?.data.slice(0, 5).map((booking) => {
+                    {(bookingsData?.data || []).slice(0, 5).map((booking) => {
                       const bookingId = (booking as any)._id || booking.id;
                       return (
                         <div
@@ -459,8 +469,11 @@ export function CustomerDashboard() {
               </Card>
             </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
+            {/* Right Sidebar */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Profile Section */}
+              <ProfileSection />
+
               {/* Quick Stats */}
               <Card>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -495,8 +508,8 @@ export function CustomerDashboard() {
                   <div className="space-y-3">
                     {Array.from(
                       new Set(
-                        bookingsData.data
-                          .filter((b) => b.caregiverId && b.status !== 'cancelled')
+                        ((bookingsData?.data) || [])
+                          .filter((b) => b && b.caregiverId && b.status !== 'cancelled')
                           .map((b) => {
                             if (typeof b.caregiverId === 'object' && b.caregiverId !== null) {
                               const caregiver = b.caregiverId as any;
@@ -526,67 +539,7 @@ export function CustomerDashboard() {
               )}
 
               {/* Quick Actions */}
-              <Card>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Quick Actions
-                </h3>
-                <div className="space-y-2">
-                  <Link to="/bookings/new">
-                    <Button fullWidth variant="outline" className="!justify-start">
-                      <svg
-                        className="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                      Schedule Appointment
-                    </Button>
-                  </Link>
-                  <Link to="/caregivers">
-                    <Button fullWidth variant="outline" className="!justify-start">
-                      <svg
-                        className="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                      Find Caregivers
-                    </Button>
-                  </Link>
-                  <Link to="/bookings">
-                    <Button fullWidth variant="outline" className="!justify-start">
-                      <svg
-                        className="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                        />
-                      </svg>
-                      View All Bookings
-                    </Button>
-                  </Link>
-                </div>
-              </Card>
+              <QuickActions />
             </div>
           </div>
         )}
@@ -792,13 +745,13 @@ export function CustomerDashboard() {
                 <div className="flex justify-center p-8">
                   <Spinner />
                 </div>
-              ) : caregiversData?.data.length === 0 ? (
+              ) : !caregiversData?.data || caregiversData.data.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">No caregivers found. Try adjusting your search filters.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {caregiversData?.data.map((caregiver) => {
+                  {(caregiversData?.data || []).map((caregiver) => {
                     const caregiverId = (caregiver as any)._id || caregiver.id;
                     const caregiverUser = getCaregiverUser(caregiver);
                     const caregiverName = getCaregiverName(caregiver);
@@ -875,94 +828,10 @@ export function CustomerDashboard() {
         {/* Care Schedule Tab */}
         {activeTab === 'schedule' && (
           <div className="space-y-6">
-            <Card>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Upcoming Schedule
-                </h2>
-                <Link to="/bookings/new">
-                  <Button size="sm">Add Appointment</Button>
-                </Link>
-              </div>
-              {bookingsLoading ? (
-                <div className="flex justify-center p-8">
-                  <Spinner />
-                </div>
-              ) : bookingsData?.data.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">No upcoming appointments</p>
-                  <Link to="/bookings/new">
-                    <Button size="sm" className="mt-4">
-                      Schedule Appointment
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {bookingsData?.data
-                    .filter((b) => {
-                      const bookingDate = parseISO(b.startTime);
-                      return bookingDate >= new Date() && b.status !== 'cancelled';
-                    })
-                    .sort((a, b) => parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime())
-                    .slice(0, 10)
-                    .map((booking) => {
-                      const bookingId = (booking as any)._id || booking.id;
-                      const startTime = parseISO(booking.startTime);
-                      const endTime = booking.endTime ? parseISO(booking.endTime) : null;
-                      
-                      return (
-                        <div
-                          key={bookingId}
-                          className="flex gap-3 p-4 bg-primary-50 rounded-lg border border-primary-100"
-                        >
-                          <div className="text-center min-w-[60px]">
-                            <p className="text-lg font-bold text-primary-600">
-                              {formatTime(startTime).split(' ')[0]}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              {formatTime(startTime).split(' ')[1]}
-                            </p>
-                            {endTime && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                - {formatTime(endTime)}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-semibold text-gray-900">
-                              {booking.notes || 'Care Session'}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {booking.address}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {formatDate(startTime, 'EEEE, MMM d, yyyy')}
-                            </p>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <span className={`text-xs px-2 py-1 rounded font-medium ${
-                              booking.status === 'confirmed' ? 'bg-blue-100 text-blue-700' :
-                              booking.status === 'in_progress' ? 'bg-green-100 text-green-700' :
-                              'bg-yellow-100 text-yellow-700'
-                            }`}>
-                              {booking.status.replace('_', ' ').toUpperCase()}
-                            </span>
-                            {booking.priceCents > 0 && (
-                              <p className="text-sm font-semibold text-gray-900">
-                                {formatCurrency(booking.priceCents)}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
-            </Card>
+            <UpcomingSchedule />
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

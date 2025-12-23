@@ -89,6 +89,8 @@ export function useAdminUsers(params?: {
     queryKey: ['admin', 'users', params],
     queryFn: () => getUsers(params),
     staleTime: 30 * 1000, // 30 seconds
+    enabled: true, // Always enabled for admin panel
+    refetchOnWindowFocus: true,
   });
 }
 

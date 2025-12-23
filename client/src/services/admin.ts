@@ -52,7 +52,10 @@ export async function rejectVerification(
 
 /**
  * Get all users (with pagination)
+ * Uses the users service which properly handles paginated responses
  */
+import { getUsers as getUserList } from './users';
+
 export async function getUsers(params?: {
   role?: string;
   page?: number;
@@ -60,16 +63,14 @@ export async function getUsers(params?: {
   city?: string;
   isActive?: boolean;
 }): Promise<{ data: User[]; total: number; page: number; limit: number }> {
-  const queryParams = new URLSearchParams();
-  if (params?.role) queryParams.set('role', params.role);
-  if (params?.page) queryParams.set('page', String(params.page));
-  if (params?.limit) queryParams.set('limit', String(params.limit));
-  if (params?.city) queryParams.set('city', params.city);
-  if (params?.isActive !== undefined) queryParams.set('isActive', String(params.isActive));
-
-  return apiGet<{ data: User[]; total: number; page: number; limit: number }>(
-    `/users?${queryParams.toString()}`
-  );
+  const result = await getUserList(params);
+  
+  return {
+    data: result.data,
+    total: result.pagination.total,
+    page: result.pagination.page,
+    limit: result.pagination.limit,
+  };
 }
 
 /**
