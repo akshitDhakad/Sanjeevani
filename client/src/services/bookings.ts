@@ -1,9 +1,9 @@
 /**
  * Booking service
- * Handles booking creation, updates, and queries
+ * Handles booking creation, updates, and queries with backend integration
  */
 
-import { apiGet, apiPost, apiPut } from '../api/client';
+import { apiGet, apiPost, apiPatch } from '../api/client';
 import type { Booking, PaginatedResponse } from '../types';
 import type { BookingInput } from '../api/schema';
 
@@ -11,20 +11,17 @@ import type { BookingInput } from '../api/schema';
  * Get bookings for current user
  */
 export async function getBookings(params?: {
-  userId?: string;
-  status?: string;
   page?: number;
   limit?: number;
 }): Promise<PaginatedResponse<Booking>> {
   const queryParams = new URLSearchParams();
   
-  if (params?.userId) queryParams.set('userId', params.userId);
-  if (params?.status) queryParams.set('status', params.status);
   if (params?.page) queryParams.set('page', String(params.page));
   if (params?.limit) queryParams.set('limit', String(params.limit));
 
+  const queryString = queryParams.toString();
   return apiGet<PaginatedResponse<Booking>>(
-    `/bookings?${queryParams.toString()}`
+    `/bookings/me${queryString ? `?${queryString}` : ''}`
   );
 }
 
@@ -32,8 +29,7 @@ export async function getBookings(params?: {
  * Get booking by ID
  */
 export async function getBookingById(id: string): Promise<Booking> {
-  const response = await apiGet<{ data: Booking }>(`/bookings/${id}`);
-  return response.data;
+  return apiGet<Booking>(`/bookings/${id}`);
 }
 
 /**
@@ -44,34 +40,34 @@ export async function createBooking(payload: BookingInput): Promise<Booking> {
 }
 
 /**
- * Update booking status
+ * Update booking
  */
-export async function updateBookingStatus(
+export async function updateBooking(
   id: string,
-  status: Booking['status']
+  payload: Partial<{ status: Booking['status']; endTime: string; notes: string }>
 ): Promise<Booking> {
-  return apiPut<Booking>(`/bookings/${id}`, { status });
+  return apiPatch<Booking>(`/bookings/${id}`, payload);
 }
 
 /**
  * Cancel a booking
  */
 export async function cancelBooking(id: string): Promise<Booking> {
-  return updateBookingStatus(id, 'cancelled');
+  return apiPost<Booking>(`/bookings/${id}/cancel`);
 }
 
 /**
  * Create emergency booking request
  */
 export async function createEmergencyBooking(
+  caregiverId: string,
   address: string,
   notes?: string
 ): Promise<Booking> {
   return createBooking({
-    caregiverId: '', // System will assign available caregiver
+    caregiverId,
     startTime: new Date().toISOString(),
     address,
     notes: notes || 'Emergency request',
   });
 }
-

@@ -6,17 +6,17 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { registerSchema, type RegisterInput } from '../../api/schema';
-import { register as registerService } from '../../services/auth';
 import { useAuth } from './useAuth';
+import { getErrorMessage, getValidationErrors } from '../../utils/errorHandler';
 import { Button, Input, Select } from '../../components';
 
 export function RegisterForm() {
   const navigate = useNavigate();
-  const { login: setAuth } = useAuth();
+  const { register: registerUser, isLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]> | null>(null);
 
   const {
     register,
@@ -29,25 +29,26 @@ export function RegisterForm() {
     },
   });
 
-  const registerMutation = useMutation({
-    mutationFn: registerService,
-    onSuccess: (data) => {
-      setAuth(data.token, data.user);
+  const onSubmit = async (data: RegisterInput) => {
+    setError(null);
+    setValidationErrors(null);
+    
+    try {
+      await registerUser(data);
       // Redirect based on user role
       const redirectPath =
-        data.user.role === 'caregiver'
+        data.role === 'caregiver'
           ? '/caregiver/onboarding'
           : '/customer/dashboard';
       navigate(redirectPath);
-    },
-    onError: (err: Error) => {
-      setError(err.message || 'Registration failed. Please try again.');
-    },
-  });
-
-  const onSubmit = (data: RegisterInput) => {
-    setError(null);
-    registerMutation.mutate(data);
+    } catch (err) {
+      const validationErrs = getValidationErrors(err);
+      if (validationErrs) {
+        setValidationErrors(validationErrs);
+      } else {
+        setError(getErrorMessage(err));
+      }
+    }
   };
 
   return (
@@ -68,6 +69,21 @@ export function RegisterForm() {
           role="alert"
         >
           {error}
+        </div>
+      )}
+
+      {validationErrors && (
+        <div
+          className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+          role="alert"
+        >
+          <ul className="list-disc list-inside">
+            {Object.entries(validationErrors).map(([field, messages]) => (
+              <li key={field}>
+                {field}: {messages.join(', ')}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -125,8 +141,8 @@ export function RegisterForm() {
       <Button
         type="submit"
         fullWidth
-        isLoading={registerMutation.isPending}
-        disabled={registerMutation.isPending}
+        isLoading={isLoading}
+        disabled={isLoading}
       >
         Create Account
       </Button>

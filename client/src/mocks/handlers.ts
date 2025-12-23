@@ -12,6 +12,8 @@ import type {
   AdminReport,
 } from '../types';
 
+// Use the same base URL as the API client
+// MSW will intercept requests matching this pattern
 const BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 
 // Mock data storage
@@ -82,6 +84,45 @@ export const handlers = [
       token: `mock-token-${user.id}`,
       user,
     });
+  }),
+
+  http.post(`${BASE_URL}/auth/register`, async ({ request }) => {
+    const body = (await request.json()) as {
+      name: string;
+      email: string;
+      password: string;
+      phone?: string;
+      role?: 'customer' | 'caregiver';
+    };
+
+    // Check if user already exists
+    if (mockUsers.find((u) => u.email === body.email)) {
+      return HttpResponse.json(
+        { message: 'User with this email already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Create new user
+    const newUser: User = {
+      id: `${mockUsers.length + 1}`,
+      role: body.role || 'customer',
+      name: body.name,
+      email: body.email,
+      phone: body.phone,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    mockUsers.push(newUser);
+
+    return HttpResponse.json(
+      {
+        token: `mock-token-${newUser.id}`,
+        user: newUser,
+      },
+      { status: 201 }
+    );
   }),
 
   http.post(`${BASE_URL}/auth/logout`, () => {

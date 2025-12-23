@@ -34,14 +34,14 @@ export function LandingPage() {
     <div className="min-h-screen bg-white">
       {/* Header - Fixed Navigation with Glassy Effect */}
       <header
-        className={`fixed top-0 left-0 right-0 md:top-4 md:left-4 md:right-4 z-50 transition-all duration-300 ${
+        className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300  ${
           scrolled
             ? 'bg-white/80 backdrop-blur-xl shadow-lg border-b md:border md:border-white/20'
             : 'bg-white/70 backdrop-blur-lg border-b md:border md:border-white/30'
         } md:rounded-2xl`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+        <div className="min-w-6xl max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 whitespace-nowrap">
+          <div className="flex justify-between gap-x-12 items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-md shadow-primary-200 group-hover:shadow-lg group-hover:shadow-primary-300 transition-all duration-300">
@@ -60,7 +60,7 @@ export function LandingPage() {
                 </svg>
               </div>
               <span className="text-lg font-bold text-gray-900 font-display">
-                Home-First Care
+                Sanjeevani
               </span>
             </Link>
 
@@ -1105,7 +1105,8 @@ export function LandingPage() {
               Choose Your Perfect Plan
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Transparent pricing with no hidden fees. Select the plan that works best for you.
+              Transparent pricing with no hidden fees. Select the plan that
+              works best for you.
             </p>
           </div>
 
@@ -1114,13 +1115,17 @@ export function LandingPage() {
             {/* One-Time Plan */}
             <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
               <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">One-Time</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  One-Time
+                </h3>
                 <p className="text-sm text-gray-600">Pay as you go</p>
               </div>
 
               <div className="text-center mb-6">
                 <div className="flex items-start justify-center gap-1">
-                  <span className="text-2xl font-bold text-gray-900 mt-1">$</span>
+                  <span className="text-2xl font-bold text-gray-900 mt-1">
+                    $
+                  </span>
                   <span className="text-5xl font-bold text-gray-900">25</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">per hour</p>
@@ -1128,32 +1133,72 @@ export function LandingPage() {
 
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span className="text-sm text-gray-600">No commitment</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-gray-600">Verified caregivers</span>
+                  <span className="text-sm text-gray-600">
+                    Verified caregivers
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span className="text-sm text-gray-600">Basic support</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-gray-600">Flexible scheduling</span>
+                  <span className="text-sm text-gray-600">
+                    Flexible scheduling
+                  </span>
                 </li>
               </ul>
 
-              <Button fullWidth variant="outline" className="border-2 border-gray-300 hover:border-primary-600 hover:bg-primary-50">
+              <Button
+                fullWidth
+                variant="outline"
+                className="border-2 border-gray-300 hover:border-primary-600 hover:bg-primary-50"
+              >
                 Get Started
               </Button>
             </div>
@@ -1167,47 +1212,96 @@ export function LandingPage() {
               </div>
 
               <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Monthly</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Monthly
+                </h3>
                 <p className="text-sm text-gray-600">Best for regular care</p>
               </div>
 
               <div className="text-center mb-6">
                 <div className="flex items-start justify-center gap-1">
-                  <span className="text-2xl font-bold text-primary-600 mt-1">$</span>
-                  <span className="text-5xl font-bold text-primary-600">399</span>
+                  <span className="text-2xl font-bold text-primary-600 mt-1">
+                    $
+                  </span>
+                  <span className="text-5xl font-bold text-primary-600">
+                    399
+                  </span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">per month</p>
-                <p className="text-xs text-primary-600 font-semibold mt-1">Save 20%</p>
+                <p className="text-xs text-primary-600 font-semibold mt-1">
+                  Save 20%
+                </p>
               </div>
 
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-gray-600">20 hours included</span>
+                  <span className="text-sm text-gray-600">
+                    20 hours included
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-gray-600">Priority booking</span>
+                  <span className="text-sm text-gray-600">
+                    Priority booking
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span className="text-sm text-gray-600">24/7 support</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-gray-600">Dedicated coordinator</span>
+                  <span className="text-sm text-gray-600">
+                    Dedicated coordinator
+                  </span>
                 </li>
               </ul>
 
-              <Button fullWidth className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800">
+              <Button
+                fullWidth
+                className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800"
+              >
                 Get Started
               </Button>
             </div>
@@ -1215,47 +1309,95 @@ export function LandingPage() {
             {/* 6-Month Plan */}
             <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
               <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">6 Months</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  6 Months
+                </h3>
                 <p className="text-sm text-gray-600">Better savings</p>
               </div>
 
               <div className="text-center mb-6">
                 <div className="flex items-start justify-center gap-1">
-                  <span className="text-2xl font-bold text-gray-900 mt-1">$</span>
+                  <span className="text-2xl font-bold text-gray-900 mt-1">
+                    $
+                  </span>
                   <span className="text-5xl font-bold text-gray-900">339</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">per month</p>
-                <p className="text-xs text-accent-600 font-semibold mt-1">Save 30%</p>
+                <p className="text-xs text-accent-600 font-semibold mt-1">
+                  Save 30%
+                </p>
               </div>
 
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span className="text-sm text-gray-600">25 hours/month</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-gray-600">All Monthly features</span>
+                  <span className="text-sm text-gray-600">
+                    All Monthly features
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-gray-600">Free equipment rental</span>
+                  <span className="text-sm text-gray-600">
+                    Free equipment rental
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-gray-600">Monthly health reports</span>
+                  <span className="text-sm text-gray-600">
+                    Monthly health reports
+                  </span>
                 </li>
               </ul>
 
-              <Button fullWidth variant="outline" className="border-2 border-gray-300 hover:border-primary-600 hover:bg-primary-50">
+              <Button
+                fullWidth
+                variant="outline"
+                className="border-2 border-gray-300 hover:border-primary-600 hover:bg-primary-50"
+              >
                 Get Started
               </Button>
             </div>
@@ -1279,37 +1421,80 @@ export function LandingPage() {
                   <span className="text-5xl font-bold">279</span>
                 </div>
                 <p className="text-sm text-accent-100 mt-2">per month</p>
-                <p className="text-xs text-secondary-300 font-semibold mt-1">Save 45%</p>
+                <p className="text-xs text-secondary-300 font-semibold mt-1">
+                  Save 45%
+                </p>
               </div>
 
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   <span className="text-sm text-accent-50">30 hours/month</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-accent-50">All 6-month features</span>
+                  <span className="text-sm text-accent-50">
+                    All 6-month features
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-accent-50">Free telehealth</span>
+                  <span className="text-sm text-accent-50">
+                    Free telehealth
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-secondary-300 flex-shrink-0 mt-0.5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
-                  <span className="text-sm text-accent-50">Premium support</span>
+                  <span className="text-sm text-accent-50">
+                    Premium support
+                  </span>
                 </li>
               </ul>
 
-              <Button fullWidth className="bg-white text-accent-700 hover:bg-accent-50 font-semibold">
+              <Button
+                fullWidth
+                className="bg-white text-accent-700 hover:bg-accent-50 font-semibold"
+              >
                 Get Started
               </Button>
             </div>
@@ -1318,11 +1503,15 @@ export function LandingPage() {
           {/* Additional Info */}
           <div className="mt-12 text-center">
             <p className="text-sm text-gray-600">
-              All plans include verified caregivers, secure platform, and flexible scheduling.
+              All plans include verified caregivers, secure platform, and
+              flexible scheduling.
             </p>
             <p className="text-sm text-gray-600 mt-2">
               Need a custom plan?{' '}
-              <a href="#" className="text-primary-600 font-semibold hover:underline">
+              <a
+                href="#"
+                className="text-primary-600 font-semibold hover:underline"
+              >
                 Contact our team
               </a>
             </p>

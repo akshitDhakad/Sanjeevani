@@ -1,6 +1,6 @@
 /**
  * Zod schemas for runtime validation
- * These schemas can be used for form validation and API response validation
+ * These schemas match backend validation and are used for form validation
  */
 
 import { z } from 'zod';
@@ -11,35 +11,56 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phone: z.string().optional(),
-  role: z.enum(['customer', 'caregiver']).default('customer'),
+  role: z.enum(['customer', 'caregiver', 'vendor']).default('customer'),
+});
+
+export const updateUserSchema = z.object({
+  name: z.string().min(2).max(100).optional(),
+  phone: z.string().optional(),
+  city: z.string().max(100).optional(),
 });
 
 export const caregiverProfileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().optional(),
-  city: z.string().min(2, 'City is required'),
-  services: z.array(z.string()).nonempty('Select at least one service'),
-  experienceYears: z.number().min(0).max(50),
-  hourlyRate: z.number().positive().optional(),
-  bio: z.string().max(500).optional(),
+  services: z
+    .array(z.string())
+    .min(1, 'Select at least one service')
+    .refine(
+      (val) =>
+        val.every((s) =>
+          ['nursing', 'physiotherapy', 'adl', 'companionship', 'medication', 'other'].includes(s)
+        ),
+      'Invalid service selected'
+    ),
+  experienceYears: z.number().min(0, 'Experience cannot be negative').max(50, 'Experience cannot exceed 50 years'),
+  hourlyRate: z.number().positive('Hourly rate must be positive').optional(),
+  bio: z.string().max(500, 'Bio cannot exceed 500 characters').optional(),
+  availability: z
+    .object({
+      days: z
+        .array(z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']))
+        .min(1, 'Select at least one day'),
+      startTime: z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:mm)'),
+      endTime: z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:mm)'),
+      timezone: z.string().default('Asia/Kolkata'),
+    })
+    .optional(),
 });
 
 export const documentUploadSchema = z.object({
   type: z.enum(['id_proof', 'qualification', 'background_check', 'other']),
-  file: z.instanceof(File),
+  file: z.instanceof(File).refine((file) => file.size <= 5 * 1024 * 1024, 'File size must be less than 5MB'),
 });
 
 export const bookingSchema = z.object({
   caregiverId: z.string().min(1, 'Caregiver is required'),
-  startTime: z.string().datetime(),
-  endTime: z.string().datetime().optional(),
-  address: z.string().min(10, 'Address is required'),
-  notes: z.string().max(500).optional(),
+  startTime: z.string().datetime('Invalid start time format'),
+  endTime: z.string().datetime('Invalid end time format').optional(),
+  address: z.string().min(10, 'Address must be at least 10 characters').max(500, 'Address cannot exceed 500 characters'),
+  notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional(),
 });
 
 export const searchFiltersSchema = z.object({
@@ -53,8 +74,8 @@ export const searchFiltersSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type CaregiverProfileInput = z.infer<typeof caregiverProfileSchema>;
 export type DocumentUploadInput = z.infer<typeof documentUploadSchema>;
 export type BookingInput = z.infer<typeof bookingSchema>;
 export type SearchFiltersInput = z.infer<typeof searchFiltersSchema>;
-

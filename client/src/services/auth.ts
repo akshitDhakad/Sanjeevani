@@ -1,9 +1,9 @@
 /**
  * Authentication service
- * Handles login, logout, token management
+ * Handles login, logout, token management with backend integration
  */
 
-import { apiPost, apiGet } from '../api/client';
+import { apiPost, apiGet, setTokens, clearTokens } from '../api/client';
 import type { User } from '../types';
 
 export interface LoginCredentials {
@@ -16,59 +16,69 @@ export interface RegisterCredentials {
   email: string;
   password: string;
   phone?: string;
-  role?: 'customer' | 'caregiver';
-}
-
-export interface LoginResponse {
-  token: string;
-  user: User;
+  role?: 'customer' | 'caregiver' | 'vendor';
 }
 
 export interface AuthResponse {
   user: User;
+  token: string;
+  refreshToken: string;
+}
+
+export interface LoginResponse {
+  user: User;
+  token: string;
+  refreshToken: string;
 }
 
 /**
  * Register a new user
- * NOTE: In production, backend should set httpOnly cookie instead of returning token
  */
 export async function register(credentials: RegisterCredentials): Promise<LoginResponse> {
-  const response = await apiPost<LoginResponse>('/auth/register', credentials);
+  const response = await apiPost<AuthResponse>('/auth/register', credentials);
 
-  // Store token temporarily (replace with httpOnly cookie in production)
+  // Store tokens
   if (response.token) {
-    localStorage.setItem('auth_token', response.token);
+    setTokens(response.token, response.refreshToken);
   }
 
-  return response;
+  return {
+    user: response.user,
+    token: response.token,
+    refreshToken: response.refreshToken,
+  };
 }
 
 /**
- * Login user and store token
- * NOTE: In production, backend should set httpOnly cookie instead of returning token
+ * Login user and store tokens
  */
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
-  const response = await apiPost<LoginResponse>('/auth/login', credentials);
+  const response = await apiPost<AuthResponse>('/auth/login', credentials);
 
-  // Store token temporarily (replace with httpOnly cookie in production)
+  // Store tokens
   if (response.token) {
-    localStorage.setItem('auth_token', response.token);
+    setTokens(response.token, response.refreshToken);
   }
 
-  return response;
+  return {
+    user: response.user,
+    token: response.token,
+    refreshToken: response.refreshToken,
+  };
 }
 
 /**
- * Logout user and clear token
+ * Logout user and clear tokens
  */
 export async function logout(): Promise<void> {
   try {
-    await apiPost('/auth/logout');
+    // Optionally call backend logout endpoint if available
+    // await apiPost('/auth/logout');
   } catch (error) {
     // Continue with logout even if API call fails
     console.error('Logout API error:', error);
   } finally {
-    localStorage.removeItem('auth_token');
+    clearTokens();
   }
 }
 
@@ -76,19 +86,26 @@ export async function logout(): Promise<void> {
  * Get current authenticated user
  */
 export async function getCurrentUser(): Promise<User> {
-  const response = await apiGet<AuthResponse>('/auth/me');
+  const response = await apiGet<{ user: User }>('/auth/me');
   return response.user;
 }
 
 /**
  * Refresh authentication token
- * NOTE: Implement token refresh logic based on backend strategy
  */
 export async function refreshToken(): Promise<string> {
-  const response = await apiPost<{ token: string }>('/auth/refresh');
-  if (response.token) {
-    localStorage.setItem('auth_token', response.token);
+  const refreshToken = localStorage.getItem('refresh_token');
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
   }
+
+  const response = await apiPost<{ token: string }>('/auth/refresh-token', {
+    refreshToken,
+  });
+
+  if (response.token) {
+    setTokens(response.token, refreshToken);
+  }
+
   return response.token;
 }
-

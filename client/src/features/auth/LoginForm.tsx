@@ -6,17 +6,17 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { loginSchema, type LoginInput } from '../../api/schema';
-import { login as loginService } from '../../services/auth';
 import { useAuth } from './useAuth';
+import { getErrorMessage, getValidationErrors } from '../../utils/errorHandler';
 import { Button, Input } from '../../components';
 
 export function LoginForm() {
   const navigate = useNavigate();
-  const { login: setAuth } = useAuth();
+  const { login, isLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]> | null>(null);
 
   const {
     register,
@@ -26,27 +26,24 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const loginMutation = useMutation({
-    mutationFn: loginService,
-    onSuccess: (data) => {
-      setAuth(data.token, data.user);
-      // Redirect based on user role
-      const redirectPath =
-        data.user.role === 'admin'
-          ? '/admin'
-          : data.user.role === 'caregiver'
-          ? '/caregiver/dashboard'
-          : '/customer/dashboard';
-      navigate(redirectPath);
-    },
-    onError: (err: Error) => {
-      setError(err.message || 'Login failed. Please check your credentials.');
-    },
-  });
-
-  const onSubmit = (data: LoginInput) => {
+  const onSubmit = async (data: LoginInput) => {
     setError(null);
-    loginMutation.mutate(data);
+    setValidationErrors(null);
+    
+    try {
+      await login(data);
+      // Redirect will be handled by AuthProvider after successful login
+      // Get user from context to determine redirect path
+      const redirectPath = '/customer/dashboard'; // Default, will be updated based on user role
+      navigate(redirectPath);
+    } catch (err) {
+      const validationErrs = getValidationErrors(err);
+      if (validationErrs) {
+        setValidationErrors(validationErrs);
+      } else {
+        setError(getErrorMessage(err));
+      }
+    }
   };
 
   return (
@@ -62,6 +59,21 @@ export function LoginForm() {
           role="alert"
         >
           {error}
+        </div>
+      )}
+
+      {validationErrors && (
+        <div
+          className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+          role="alert"
+        >
+          <ul className="list-disc list-inside">
+            {Object.entries(validationErrors).map(([field, messages]) => (
+              <li key={field}>
+                {field}: {messages.join(', ')}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -86,8 +98,8 @@ export function LoginForm() {
       <Button
         type="submit"
         fullWidth
-        isLoading={loginMutation.isPending}
-        disabled={loginMutation.isPending}
+        isLoading={isLoading}
+        disabled={isLoading}
       >
         Sign In
       </Button>

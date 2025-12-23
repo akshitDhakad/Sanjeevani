@@ -1,9 +1,9 @@
 /**
  * Caregiver service
- * Handles caregiver profile operations, search, and verification
+ * Handles caregiver profile operations, search, and verification with backend integration
  */
 
-import { apiGet, apiPost, apiPut } from '../api/client';
+import { apiGet, apiPost, apiPatch } from '../api/client';
 import type {
   CaregiverProfile,
   PaginatedResponse,
@@ -27,63 +27,63 @@ export async function getCaregivers(
   if (params.page) queryParams.set('page', String(params.page));
   if (params.limit) queryParams.set('limit', String(params.limit));
 
+  const queryString = queryParams.toString();
   return apiGet<PaginatedResponse<CaregiverProfile>>(
-    `/caregivers?${queryParams.toString()}`
+    `/caregivers/search${queryString ? `?${queryString}` : ''}`
   );
 }
 
 /**
- * Get caregiver by ID
+ * Get caregiver by user ID
+ */
+export async function getCaregiverByUserId(userId: string): Promise<CaregiverProfile> {
+  return apiGet<CaregiverProfile>(`/caregivers/${userId}`);
+}
+
+/**
+ * Get caregiver by profile ID
  */
 export async function getCaregiverById(id: string): Promise<CaregiverProfile> {
-  const response = await apiGet<{ data: CaregiverProfile }>(`/caregivers/${id}`);
-  return response.data;
+  return apiGet<CaregiverProfile>(`/caregivers/${id}`);
 }
 
 /**
  * Create caregiver profile (onboarding)
  */
 export async function createCaregiverProfile(
-  payload: CaregiverProfileInput
+  payload: Omit<CaregiverProfileInput, 'name' | 'email'>
 ): Promise<CaregiverProfile> {
-  return apiPost<CaregiverProfile>('/caregivers', payload);
+  return apiPost<CaregiverProfile>('/caregivers/profile', payload);
 }
 
 /**
  * Update caregiver profile
  */
 export async function updateCaregiverProfile(
-  id: string,
   payload: Partial<CaregiverProfileInput>
 ): Promise<CaregiverProfile> {
-  return apiPut<CaregiverProfile>(`/caregivers/${id}`, payload);
-}
-
-/**
- * Upload document for caregiver verification
- */
-export async function uploadCaregiverDocument(
-  caregiverId: string,
-  document: File,
-  type: string
-): Promise<Document> {
-  const formData = new FormData();
-  formData.append('file', document);
-  formData.append('type', type);
-
-  return apiPost<Document>(
-    `/caregivers/${caregiverId}/documents`,
-    formData,
-    {
-      headers: {}, // Let browser set Content-Type with boundary for FormData
-    }
-  );
+  return apiPatch<CaregiverProfile>('/caregivers/profile/me', payload);
 }
 
 /**
  * Get caregiver's own profile
  */
 export async function getMyCaregiverProfile(): Promise<CaregiverProfile> {
-  return apiGet<CaregiverProfile>('/caregivers/me');
+  return apiGet<CaregiverProfile>('/caregivers/profile/me');
 }
 
+/**
+ * Upload document for caregiver verification
+ * Note: This endpoint may need to be implemented on backend
+ */
+export async function uploadCaregiverDocument(
+  document: File,
+  type: 'id_proof' | 'qualification' | 'background_check' | 'other'
+): Promise<Document> {
+  const formData = new FormData();
+  formData.append('file', document);
+  formData.append('type', type);
+
+  // Note: This endpoint needs to be implemented on backend
+  return apiPost<Document>('/caregivers/profile/me/documents', formData);
+}

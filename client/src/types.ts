@@ -1,5 +1,6 @@
 /**
  * Core type definitions for Home-First Elderly Care Platform
+ * These types match the backend API responses
  */
 
 export type Role = 'customer' | 'caregiver' | 'vendor' | 'admin';
@@ -16,19 +17,22 @@ export type BookingStatus =
 export type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'pending';
 
 export interface User {
-  id: string;
+  _id: string;
+  id?: string; // For backward compatibility
   role: Role;
   name: string;
   email: string;
   phone?: string;
   city?: string;
+  isActive?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CaregiverProfile {
-  id: string;
-  userId: string;
+  _id: string;
+  id?: string; // For backward compatibility
+  userId: string | User;
   services: string[]; // e.g. ['nursing', 'physiotherapy', 'adl']
   experienceYears: number;
   verified: boolean;
@@ -57,9 +61,10 @@ export interface Availability {
 }
 
 export interface Booking {
-  id: string;
-  customerId: string;
-  caregiverId?: string;
+  _id: string;
+  id?: string; // For backward compatibility
+  customerId: string | User;
+  caregiverId?: string | CaregiverProfile;
   startTime: string;
   endTime?: string;
   status: BookingStatus;
@@ -71,7 +76,8 @@ export interface Booking {
 }
 
 export interface Subscription {
-  id: string;
+  _id: string;
+  id?: string; // For backward compatibility
   userId: string;
   planId: string;
   planName: string;
@@ -86,7 +92,8 @@ export interface Subscription {
 }
 
 export interface Device {
-  id: string;
+  _id: string;
+  id?: string; // For backward compatibility
   vendorId: string;
   name: string;
   type: string; // e.g. 'monitor', 'alert', 'medication_dispenser'
@@ -108,6 +115,7 @@ export interface PaymentSession {
 }
 
 export interface ApiResponse<T> {
+  success: boolean;
   data: T;
   message?: string;
 }
@@ -142,4 +150,3 @@ export interface AdminReport {
     end: string;
   };
 }
-

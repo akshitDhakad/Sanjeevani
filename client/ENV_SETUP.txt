@@ -1,0 +1,26 @@
+# Environment Configuration
+
+Create a `.env` file in the `client` directory with the following content:
+
+```
+VITE_API_BASE=http://localhost:4000
+VITE_ENV=development
+```
+
+## Explanation
+
+- `VITE_API_BASE`: The base URL of your backend API server
+  - Default: `http://localhost:4000` (matches default backend port)
+  - Change this if your backend runs on a different port or domain
+
+- `VITE_ENV`: Environment mode
+  - `development`: Development mode (enables MSW mocking if configured)
+  - `production`: Production mode
+
+## Important Notes
+
+1. Vite requires the `VITE_` prefix for environment variables to be exposed to the client
+2. Never commit `.env` file with sensitive data
+3. Use `.env.example` as a template for other developers
+4. In production, set these via your hosting platform's environment variable settings
+

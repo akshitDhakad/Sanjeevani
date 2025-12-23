@@ -52,49 +52,46 @@ export function AppRouter() {
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Protected Customer Routes */}
-        {/* <Route
+        <Route
           path="/customer/dashboard"
           element={
             <ProtectedRoute allowedRoles={['customer']}>
               <CustomerDashboard />
             </ProtectedRoute>
           }
-        /> */}
+        />
         <Route path="/customer/dashboard" element={<CustomerDashboard />} />
 
         {/* Protected Caregiver Routes */}
-        <Route path="/caregiver/dashboard" element={<CaregiverDashboard />} />
-        {/* <Route
+    
+        <Route
           path="/caregiver/dashboard"
           element={
             <ProtectedRoute allowedRoles={['caregiver']}>
               <CaregiverDashboard />
             </ProtectedRoute>
           }
-        /> */}
-        <Route
-          path="/caregiver/onboarding"
-          element={<CaregiverOnboardWizard />}
         />
-        {/* <Route
+     
+        <Route
           path="/caregiver/onboarding"
           element={
             <ProtectedRoute allowedRoles={['caregiver']}>
               <CaregiverOnboardWizard />
             </ProtectedRoute>
           }
-        /> */}
+        />
 
         {/* Protected Admin Routes */}
-        <Route path="/admin" element={<AdminPanel />} />
-        {/* <Route
+       
+        <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminPanel />
             </ProtectedRoute>
           }
-        /> */}
+        />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
